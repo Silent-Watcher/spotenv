@@ -16,6 +16,8 @@
     </a>
   </p>
 
+  <p>⭐️ Please press the star! It greatly helps development! ⭐️</p>
+
 </div>
 
 > **spotenv** — scan a JavaScript/TypeScript codebase for environment variable usage and generate a **safe** `.env.example` file.
