@@ -48,13 +48,15 @@
 * Avoids writing secrets or sensitive defaults to `.env.example` (heuristic: keys containing `SECRET`, `TOKEN`, `KEY`, `PWD`, `PASSWORD`, `PRIVATE` are treated as sensitive).
 * Watch mode — auto-regenerate `.env.example` on file changes.
 * Merge mode — preserve keys in an existing `.env.example` while adding newly detected keys.
-* You can customize a `.spotenv.json` file - the main configuration file of spotenv - to enable you to use spotenv without the cli flags. 
+* You can customize a `.spotenv.json` file - the main configuration file of spotenv - to enable you to use spotenv without the cli flags.
 
 ### Example Usage with a Configuration File
-1. Create a .spotenv.json file in the root of your project.
+1. Create a `.spotenv.json` file in the root of your project.
 2. Manually customize the individual flag options - `dir`, `out`, `watch`, `merge` and `ignore` - where `dir` refers to the target project directory to scan using both relative and absolute paths, `out` refers to the location of your `.env`, `.env.example`, `.env.local` file, specified to the directory of choice, while `watch` `merge` and `ignore` set the flags to watch, merge and list the directories to ignore scanning for environment variables respectively.
-In action, your configuration file should look like this: 
-`{
+In action, your configuration file should look like this:
+
+```json
+{
   "dir": "/home/ubuntu/projects/project1",
   "out": ".env.example",
   "watch": false,
@@ -68,7 +70,9 @@ In action, your configuration file should look like this:
     "**/.vercel/**",
     "**/out/**"
   ]
-}`
+}
+```
+
 
 **NOTE**: When you reference the environment file as shown above, it creates a new one in the current project root directory.
 * With a properly configured file set up, you can run sponenv without cli options for the options specifically entered.
