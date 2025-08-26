@@ -9,8 +9,3 @@ export const DEFAULT_IGNORE = [
 	'**/.vercel/**',
 	'**/out/**',
 ];
-
-export const DEFAULT_TARGET_ENV_EXAMPLE_FILE = join(
-	process.cwd(),
-	'.env.example',
-);

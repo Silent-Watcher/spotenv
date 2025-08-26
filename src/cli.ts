@@ -6,10 +6,15 @@ import type { FSWatcher } from 'chokidar';
 import chokidar from 'chokidar';
 import ora from 'ora';
 import { DEFAULT_IGNORE } from './utils/constants';
-import { doesEnvExampleFileExists } from './utils/helpers';
+import {
+	acquireFormat,
+	doesEnvExampleFileExists,
+	makeExampleFilenameHandler,
+} from './utils/helpers';
 import { initialProgram } from './utils/program';
-import { renderEnvExample, writeEnvExample } from './utils/render';
+import { renderFile, writeFile } from './utils/render';
 import { scanProject } from './utils/scan';
+import type { Format } from './utils/types';
 
 async function main() {
 	let watcher: FSWatcher;
@@ -17,31 +22,36 @@ async function main() {
 
 	const options = program.opts();
 	const directoryToScan: string = resolve(options.dir);
-	const targetEnvExampleFile: string = resolve(options?.out);
+	const filename: string = options?.out;
 	const requestToMerge: boolean = options.merge;
 	const watchMode: boolean = options.watch;
 	const ignorePatterns = Array.isArray(options.ignore)
 		? options.ignore
 		: DEFAULT_IGNORE;
+	const targetFormat: Format = acquireFormat(options?.format);
+	const fullFilename = makeExampleFilenameHandler[targetFormat](filename);
+	const path = resolve(fullFilename);
 
 	if (requestToMerge) {
 		console.log(
-			chalk.yellowBright(`requested to merge with existing env file...`),
+			chalk.yellowBright(
+				`requested to merge with existing ${fullFilename} file...`,
+			),
 		);
 	}
 
-	const envExampleFileExists = doesEnvExampleFileExists(targetEnvExampleFile);
+	const envExampleFileExists = doesEnvExampleFileExists(path);
 
 	if (envExampleFileExists.result) {
 		console.log(
 			chalk.gray(
-				`.env.example file detected at ${envExampleFileExists.at}!`,
+				`${fullFilename} file detected at ${envExampleFileExists.at}!`,
 			),
 		);
 	} else {
 		console.log(
 			chalk.gray(
-				`.env.example file not found at ${envExampleFileExists.at}!`,
+				`${fullFilename} file not found at ${envExampleFileExists.at}!`,
 			),
 		);
 	}
@@ -62,23 +72,13 @@ async function main() {
 					} env keys`,
 				)
 				.stop();
-			const content = renderEnvExample(envMap);
-			await writeEnvExample(
-				targetEnvExampleFile,
-				content,
-				requestToMerge,
-			);
+			const content = renderFile(envMap, targetFormat);
+			await writeFile(path, content, requestToMerge);
 			if (envExampleFileExists.result && requestToMerge) {
 				// * control how much change we have
-				console.log(chalk.green('.env.example updated'));
+				console.log(chalk.green(`${fullFilename} updated`));
 			} else {
-				console.log(
-					chalk.green(
-						`.env.example written to ${resolve(
-							targetEnvExampleFile,
-						)}`,
-					),
-				);
+				console.log(chalk.green(`${fullFilename} written to ${path}`));
 			}
 		} catch (error) {
 			spinner.fail('Scan failed');
@@ -125,6 +125,7 @@ async function main() {
 			}, 400);
 		});
 	} else {
+		// sigint
 		await runScanAndWrite();
 	}
 

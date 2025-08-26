@@ -18,7 +18,7 @@
 
 </div>
 
-> **spotenv** — scan a JavaScript/TypeScript codebase for environment variable usage and generate a **safe** `.env.example` file.
+> **spotenv** — scan a JavaScript/TypeScript codebase for environment variable usage and generate a **safe** `.env.sample-filename` file.
 
 
 ---
@@ -26,7 +26,7 @@
 ## Why use spotenv
 
 * Automatically discover the environment variables your code expects — great for onboarding, PRs, CI checks and documentation.
-* Avoids manual errors: keeps `.env.example` in sync with code.
+* Avoids manual errors: keeps `.env.sample-filename` in sync with code.
 * Safer than naive tools: it uses AST-based extraction (Babel) for accurate detection rather than brittle regex-only scanning.
 * Works with both JavaScript and TypeScript projects (parses TypeScript syntax via `@babel/parser` plugin).
 
@@ -43,18 +43,19 @@
   * `const { FOO } = process.env` (with optional default values)
   * `import.meta.env.FOO` (Vite)
 * Flags dynamic usages (`process.env[someVar]`) for manual review.
-* Avoids writing secrets or sensitive defaults to `.env.example` (heuristic: keys containing `SECRET`, `TOKEN`, `KEY`, `PWD`, `PASSWORD`, `PRIVATE` are treated as sensitive).
-* Watch mode — auto-regenerate `.env.example` on file changes.
-* Merge mode — preserve keys in an existing `.env.example` while adding newly detected keys.
-
+* Avoids writing secrets or sensitive defaults to `.env.sample-filename` (heuristic: keys containing `SECRET`, `TOKEN`, `KEY`, `PWD`, `PASSWORD`, `PRIVATE` are treated as sensitive).
+* Watch mode — auto-regenerate `sample-filename` on file changes.
+* Merge mode — preserve keys in an existing `sample-filename` while adding newly detected keys.
+* Multiple output formats: Generate `sample-filename` in env, JSON, or YAML format.
+* Custom output filenames: Specify custom filenames with automatic extension handling.
 ---
 
 ## When spotenv is useful (scenarios)
 
-* New developer onboarding — provide a reliable `.env.example` for a repo.
+* New developer onboarding — provide a reliable `.env.sample-filename` for a repo.
 * Open-source projects — maintainers can guarantee contributors see required env keys without exposing secrets.
 * CI validation — check that required env keys are documented before deploying or running builds.
-* Refactor time — ensure renamed/removed env keys are reflected in the example file.
+* Refactor time — ensure renamed/removed env keys are reflected in the sample-filename file.
 
 ---
 
@@ -83,12 +84,19 @@ npx spotenv
 
 ```bash
 # run on current directory and write .env.example
-spotenv -d . -o .env.example
+spotenv -d . -o example
 
-# scan a specific project directory
+# Scan a specific project directory
 spotenv -d /path/to/project
 
-# watch and auto-regenerate (COMMING SOON !)
+# Generate with custom filename (automatic extension handling)
+spotenv -d . -o sample-filename
+
+# Generate in different formats
+spotenv -d . -f json -o env-config
+spotenv -d . -f yml -o environment
+
+# Watch and auto-regenerate (COMMING SOON!)
 spotenv -w
 
 ```
@@ -96,16 +104,22 @@ spotenv -w
 ### CLI options
 
 * `-d, --dir <dir>` — project directory to scan (default: `.`)
-* `-o, --out <file>` — output file path (default: `.env.example`)
+* `-o, --out <file>` — output file path (default: `sample-filename`)
 * `-w, --watch` — watch source files and auto-regenerate on change (COMMING SOON!)
-* `-m, --merge` — merge results with an existing `.env.example` (keep existing keys)
+* `-m, --merge` — merge results with an existing `.env.sample-filename` (keep existing keys)
 * `--ignore <patterns...>` — additional glob ignore patterns
-
+* `-f, --format <extension>` — output format for environment variables (env, json, yml) (default: `env`)
 Examples:
 
 ```bash
 # scan 'my-app' and write examples in repo root
-spotenv -d ./my-app -o ./my-app/.env.example
+spotenv -d ./my-app -o ./my-app/sample-filename
+
+# Generate JSON format with custom filename
+spotenv -d ./my-app -f json -o env-vars
+
+# Generate YAML format for configuration
+spotenv -d ./my-app -f yml -o config
 
 # watch updates into existing example (COMMING SOON!)
 spotenv -w
@@ -113,12 +127,16 @@ spotenv -w
 
 ---
 
-## Output format
+## Output formats
 
-Generated `.env.example` looks like this (example):
+spotenv supports multiple output formats to suit different use cases:
 
-```text
-# .env.example (generated)
+### env format (default)
+
+Generated `.env.sample-filename` looks like this:
+
+```env
+# .env.sample-filename (generated)
 # Add real values to .env — do NOT commit secrets to source control.
 
 # used in: src/server.ts, src/config.ts
@@ -132,16 +150,48 @@ DB_HOST=
 # Please review code and add any dynamic env keys manually.
 ```
 
-Notes:
+### JSON format
+
+For programmatic consumption or integration with other tools:
+
+```json
+[
+  {
+    "description": "used in: src/server.ts, src/config.ts, default: 3000",
+    "key": "PORT",
+    "value": ""
+  },
+  {
+    "description": "used in: src/db.ts",
+    "key": "DB_HOST",
+    "value": ""
+  }
+]
+```
+
+### YAML format
+
+For configuration management or documentation:
+
+```yaml
+# used in: src/server.ts, src/config.ts, default: 3000
+PORT: ''
+
+# used in: src/db.ts
+DB_HOST: ''
+```
+
+### Notes
 
 * Sensitive keys are shown but their defaults are omitted or redacted.
 * If a key is detected multiple times, the file includes up to a few example source file locations.
+* Custom filenames are automatically handled with appropriate extensions (`.env`, `.json`, `.yml`).
 
 ---
 
 ## Security & Best Practices
 
-* **Never** commit real secrets into source control. `.env.example` is meant to document keys, not store values.
+* **Never** commit real secrets into source control. `sample-filename` is meant to document keys, not store values.
 * Spotenv will **not** write literal string defaults into the example if the key looks sensitive (heuristic by name). However, you should manually review keys flagged sensitive.
 * The tool scans only source files; it **does not** inspect runtime environment or loaded `.env` files, so you won't accidentally reveal live secrets.
 * Use `.env` (listed in `.gitignore`) for real values and keep it out of version control.
@@ -156,7 +206,7 @@ Notes:
 
 ### Dynamic keys
 
-If the tool reports dynamic keys (`process.env[someVar]`) it cannot statically resolve them — inspect those files manually and add keys to `.env.example` where appropriate.
+If the tool reports dynamic keys (`process.env[someVar]`) it cannot statically resolve them — inspect those files manually and add keys to `.env.sample-filename` where appropriate.
 
 ---
 
@@ -173,7 +223,8 @@ If the tool reports dynamic keys (`process.env[someVar]`) it cannot statically r
 Ideas you can add later:
 
 * Support framework-specific conventions: `NEXT_PUBLIC_*` (Next.js), `VITE_` prefixes, dotenv-safe validation, etc.
-* Add a JSON/Markdown report mode (`--format json|md`) for programmatic consumption.
+* Add more output formats (CSV, XML, etc.) for different use cases.
+* Template customization for different project structures.
 
 ---
 

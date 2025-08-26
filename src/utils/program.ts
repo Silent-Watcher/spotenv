@@ -7,12 +7,12 @@ export function initialProgram(): Command {
 	program
 		.name('spotenv')
 		.description(
-			'Scan project for environment variable usage and generate .env.example',
+			'Scan project for environment variable usage and generate .env.sample-filename',
 		)
 		.version(version)
 		.showHelpAfterError()
 		.requiredOption('-d, --dir <dir>', 'project directory to scan')
-		.option('-o, --out <file>', 'path for output file', '.env.example')
+		.option('-o, --out <file>', 'path for output file', 'sample-filename')
 		.option('-w, --watch', 'watch files and auto-regenerate', false)
 		.option(
 			'-m, --merge',
@@ -23,6 +23,11 @@ export function initialProgram(): Command {
 			'--ignore <patterns...>',
 			'glob ignore patterns',
 			DEFAULT_IGNORE,
+		)
+		.option(
+			'-f, --format <extension>',
+			'output format for environment variables (env, json, yml)',
+			'env',
 		)
 		.parse(process.argv);
 

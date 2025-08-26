@@ -1,11 +1,11 @@
 import { existsSync, type PathLike } from 'node:fs';
 import type { FileHandle } from 'node:fs/promises';
 import { mkdir, writeFile } from 'node:fs/promises';
-import { dirname, join } from 'node:path';
+import { basename, dirname, extname, join } from 'node:path';
 import type { ParseResult } from '@babel/parser';
 import { parse } from '@babel/parser';
 import * as t from '@babel/types';
-import { DEFAULT_TARGET_ENV_EXAMPLE_FILE } from './constants';
+import type { Format } from './types';
 
 export function parseFileToAst(sourceCode: string): ParseResult {
 	return parse(sourceCode, {
@@ -62,15 +62,11 @@ export async function outputFile(file: PathLike | FileHandle, data: string) {
 	await writeFile(file, data, { encoding: 'utf-8' });
 }
 
-export function doesEnvExampleFileExists(targetAddr?: string): {
+export function doesEnvExampleFileExists(targetAddr: string): {
 	result: boolean;
 	at: string;
 } {
 	let envExampleExists = false;
-	if (!targetAddr) {
-		targetAddr = DEFAULT_TARGET_ENV_EXAMPLE_FILE;
-	}
-
 	envExampleExists = existsSync(targetAddr);
 
 	return {
@@ -78,3 +74,30 @@ export function doesEnvExampleFileExists(targetAddr?: string): {
 		at: targetAddr,
 	};
 }
+
+const isFormat = (x: any): x is Format => {
+	return x === 'json' || x === 'env' || x === 'yml';
+};
+
+export const acquireFormat = (raw: string): Format => {
+	return isFormat(raw) ? raw : 'env';
+};
+
+const createFilename = (
+	filename: string,
+	extension: string,
+	prefix = '',
+): string => {
+	const dir = dirname(filename);
+	const base = basename(filename, extname(filename));
+	const newFilename = `${prefix}${base}${extension}`;
+	return dir === '.' ? newFilename : join(dir, newFilename);
+};
+
+export const makeExampleFilenameHandler: {
+	[k in Format]: (filename: string) => string;
+} = {
+	json: (filename) => createFilename(filename, '.json'),
+	env: (filename) => createFilename(filename, '', '.env.'),
+	yml: (filename) => createFilename(filename, '.yml'),
+};
