@@ -23,7 +23,7 @@ export function initialProgram(): Command {
 	program
 		.name('spotenv')
 		.description(
-			'Scan project for environment variable usage and generate .env.example',
+			'Scan project for environment variable usage and generate .env.sample-filename',
 		)
 		.version(version)
 		.showHelpAfterError()
@@ -51,6 +51,11 @@ export function initialProgram(): Command {
 			'--ignore <patterns...>',
 			'glob ignore patterns',
 			config.ignore ?? DEFAULT_IGNORE,
+		)
+		.option(
+			'-f, --format <extension>',
+			'output format for environment variables (env, json, yml)',
+			'env',
 		)
 		.parse(process.argv);
 

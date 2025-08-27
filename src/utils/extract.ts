@@ -11,7 +11,7 @@ import {
 	tryExtractDefaultFromParent,
 } from './helpers';
 
-type KeyMeta = {
+export type KeyMeta = {
 	key: string;
 	files: Set<string>;
 	isDynamic?: boolean;

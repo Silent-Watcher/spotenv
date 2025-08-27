@@ -7,3 +7,5 @@ export interface SpotenvConfig {
 	merge?: boolean;
 	ignore?: string[];
 }
+
+export type Format = 'json' | 'env' | 'yml';
