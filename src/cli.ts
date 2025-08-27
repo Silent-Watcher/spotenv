@@ -31,15 +31,10 @@ async function main() {
 		type: outputType,
 		exists: outputFileExists,
 	} = inferOutputTarget(targetOutput, options?.format);
-	// acquireFormatFromInput(options?.format)
 
 	if (outputType === 'stdout') {
 		throw new Error('invalid target path to generate output file');
 	}
-
-	// const fullFilename = makeExampleFilenameHandler[targetFormat](filename);
-	// console.log("fullFilename: ", fullFilename);
-	// const path = resolve(fullFilename);
 
 	if (requestToMerge) {
 		console.log(
@@ -48,8 +43,6 @@ async function main() {
 			),
 		);
 	}
-
-	// const envExampleFileExists = doesEnvExampleFileExists(path);
 
 	if (outputFileExists) {
 		console.log(chalk.gray(`${finalPath} file detected!`));
@@ -60,7 +53,6 @@ async function main() {
 	const spinner = ora('Scanning project for env usage...').start();
 
 	async function runScanAndWrite() {
-		// spinner.text = "Scanning project for env usage...";
 		try {
 			const envMap = await scanProject(directoryToScan, ignorePatterns);
 			spinner.clear();
@@ -76,7 +68,6 @@ async function main() {
 			const content = renderFile(envMap, targetFormat as Format);
 			await writeFile(finalPath as string, content, requestToMerge);
 			if (outputFileExists && requestToMerge) {
-				// * control how much change we have
 				console.log(
 					chalk.green(`${basename(finalPath as string)} updated`),
 				);
@@ -128,15 +119,13 @@ async function main() {
 			}, 400);
 		});
 	} else {
-		// sigint
 		await runScanAndWrite();
 	}
 
 	process.on('SIGINT', async () => {
 		spinner.stop(); // stop the spinner so it doesnt block terminal
-		await watcher.close(); // close chokidar watcher
-		// console.log("\n👋 Exiting gracefully...");
-		process.exit(0); // exit cleanly
+		await watcher.close();
+		process.exit(0);
 	});
 }
 

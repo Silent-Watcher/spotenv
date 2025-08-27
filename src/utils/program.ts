@@ -61,7 +61,6 @@ export function initialProgram(): Command {
 
 	// Merge cli options with config file
 	const cliOptions = program.opts();
-	console.log('cliOptions: ', cliOptions);
 	const finalConfig = mergeConfigWithCliOptions(config, cliOptions);
 
 	// update program options with finalConfig

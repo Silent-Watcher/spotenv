@@ -49,38 +49,6 @@ function findConfigFile(startDir: string = process.cwd()): string | undefined {
 	return undefined;
 }
 
-/*function createConfigFile(startDir: string = process.cwd()): string | undefined {
-    // default configuration
-    const defaultConfig: SpotenvConfig = {
-        dir: findProjectRoot(process.cwd()),
-        out: '.env.example',
-        watch: false,
-        merge: false,
-        ignore: DEFAULT_IGNORE,
-    }
-    let configDir = findProjectRoot(startDir);
-    if (configDir === null) {
-        console.error('No project root found. Please run in a valid project directory.');
-        process.exit(1);
-    }
-    let spotenvConfigFile = join(configDir, '.spotenv.json');
-
-    if (existsSync(spotenvConfigFile)) {
-        console.warn(`${spotenvConfigFile} already exists. Skipping creation.`);
-        return;
-    }
-
-    const configContent = JSON.stringify(defaultConfig, null, 2);
-    try {
-        writeFileSync(spotenvConfigFile, configContent);
-        console.log(`Created ${spotenvConfigFile}`);
-        return spotenvConfigFile
-    } catch (error) {
-        console.error(`Error creating ${spotenvConfigFile}:`, error);
-        process.exit(1);
-    }
-}*/
-
 // function to load the configuration file if it exists
 export function loadSpotenvConfig(startDir: string = process.cwd()): {
 	path?: string;

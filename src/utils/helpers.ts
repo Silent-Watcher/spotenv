@@ -63,57 +63,6 @@ export async function outputFile(file: PathLike | FileHandle, data: string) {
 	await writeFile(file, data, { encoding: 'utf-8' });
 }
 
-// export function doesEnvExampleFileExists(targetAddr: string): {
-// 	result: boolean;
-// 	at: string;
-// } {
-// 	let envExampleExists = false;
-// 	envExampleExists = existsSync(targetAddr);
-
-// 	return {
-// 		result: envExampleExists,
-// 		at: targetAddr,
-// 	};
-// }
-
-// const isFormat = (x: any): x is Format => {
-// 	return x === "json" || x === "env" || x === "yml";
-// };
-
-// export const acquireFormatFromInput = (raw: string): Format => {
-// 	return isFormat(raw) ? raw : "env";
-// };
-
-// const createFilename = (
-// 	filename: string,
-// 	extension: string,
-// 	prefix = "",
-// ): string => {
-// 	console.log("filename: ", filename);
-// 	console.log("extname(filename)", extname(filename));
-// 	const dir = dirname(filename);
-// 	console.log("dir: ", dir);
-// 	const base = basename(filename, extname(filename));
-// 	let newFilename: string | null = "";
-// 	console.log('base === ".env": ', base === ".env");
-// 	if (base === ".env") {
-// 		newFilename = `${prefix}${extname(filename).replace(".", "")}`;
-// 	} else {
-// 		newFilename = `${prefix}${base}${extension}`;
-// 	}
-// 	console.log("base: ", base);
-// 	console.log("newFilename: ", newFilename);
-// 	return dir === "." ? newFilename : join(dir, newFilename);
-// };
-
-// export const makeExampleFilenameHandler: {
-// 	[k in Format]: (filename: string) => string;
-// } = {
-// 	json: (filename) => createFilename(filename, ".json"),
-// 	env: (filename) => createFilename(filename, "", ".env."),
-// 	yml: (filename) => createFilename(filename, ".yml"),
-// };
-
 function isDotEnv(basename: string) {
 	return basename.toLowerCase().startsWith('.env');
 }
@@ -128,7 +77,6 @@ function inferFormatFromBase(basename: string): Format | null {
 }
 
 function filenameForFormat(format: Format, name: string = 'env'): string {
-	console.log('filenameForFormat: ', filenameForFormat);
 	if (format === 'json') return `${name}.json`;
 	if (format === 'yml') return `${name}.yaml`;
 
@@ -157,22 +105,17 @@ export function inferOutputTarget(
 
 	const normalized = normalize(rawPath);
 	const base = basename(normalized);
-	console.log('base: ', base);
 	const ext = extname(base).toLowerCase();
 	const filename = base.startsWith('.')
 		? base.split('.')[1]
 		: base.split('.')[0];
-	console.log('filename: ', filename);
 	const format = requestedFormat ?? inferFormatFromBase(base) ?? 'env';
-	console.log('format: ', format);
 
 	// 1) If exists -> trust filesystem
 	if (existsSync(normalized)) {
 		const s = statSync(normalized);
 		if (s.isDirectory()) {
-			console.log(1);
 			const chosenFile = filenameForFormat(requestedFormat ?? 'env');
-			console.log('chosenFile: ', chosenFile);
 			return {
 				type: 'directory',
 				format,
@@ -183,15 +126,13 @@ export function inferOutputTarget(
 
 		if (s.isFile()) {
 			let finalPath: string;
-			console.log('rawPath: ', rawPath);
-			console.log('filename: ', filename);
+
 			if (format === 'env') {
 				finalPath = join(dirname(rawPath), base);
 			} else {
 				finalPath = join(dirname(rawPath), `${filename}.${format}`);
 			}
-			console.log(2);
-			console.log('finalPath: ', finalPath);
+
 			return {
 				type: 'file',
 				format,
@@ -209,8 +150,6 @@ export function inferOutputTarget(
 		rawPath.endsWith('\\')
 	) {
 		const chosenFile = filenameForFormat(requestedFormat ?? 'env');
-		console.log(3);
-		console.log('chosenFile: ', chosenFile);
 
 		return {
 			type: 'directory',
@@ -229,11 +168,6 @@ export function inferOutputTarget(
 		} else {
 			finalPath = join(dirname(rawPath), `${filename}.${format}`);
 		}
-		console.log('rawPath: ', rawPath);
-		console.log('`${filename}.${format}`: ', `${filename}.${format}`);
-		console.log('dirname(rawPath): ', dirname(rawPath));
-		console.log(4);
-		console.log('finalPath: ', finalPath);
 		return {
 			type: 'file',
 			format,
@@ -248,8 +182,6 @@ export function inferOutputTarget(
 		normalized,
 		filenameForFormat(requestedFormat ?? 'env'),
 	);
-	console.log('finalPath: ', finalPath);
-	console.log(5);
 	return {
 		type: 'directory',
 		format,
@@ -258,30 +190,3 @@ export function inferOutputTarget(
 		exists: existsSync(finalPath),
 	};
 }
-
-const isFormat = (x: any): x is Format => {
-	return x === 'json' || x === 'env' || x === 'yml';
-};
-
-export const acquireFormat = (raw: string): Format => {
-	return isFormat(raw) ? raw : 'env';
-};
-
-const createFilename = (
-	filename: string,
-	extension: string,
-	prefix = '',
-): string => {
-	const dir = dirname(filename);
-	const base = basename(filename, extname(filename));
-	const newFilename = `${prefix}${base}${extension}`;
-	return dir === '.' ? newFilename : join(dir, newFilename);
-};
-
-export const makeExampleFilenameHandler: {
-	[k in Format]: (filename: string) => string;
-} = {
-	json: (filename) => createFilename(filename, '.json'),
-	env: (filename) => createFilename(filename, '', '.env.'),
-	yml: (filename) => createFilename(filename, '.yml'),
-};
