@@ -1,5 +1,5 @@
 // configuration file functions
-import { existsSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { DEFAULT_IGNORE } from './constants';
 import type { SpotenvConfig } from './types';
@@ -11,6 +11,7 @@ const defaultConfig: SpotenvConfig = {
 	watch: false,
 	merge: false,
 	ignore: DEFAULT_IGNORE,
+	format: 'env',
 };
 
 // function to find the nearest project root by looking for package.json

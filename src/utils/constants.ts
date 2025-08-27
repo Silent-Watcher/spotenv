@@ -1,5 +1,3 @@
-import { join } from 'node:path';
-
 export const DEFAULT_IGNORE = [
 	'**/node_modules/**',
 	'**/dist/**',
@@ -9,3 +7,11 @@ export const DEFAULT_IGNORE = [
 	'**/.vercel/**',
 	'**/out/**',
 ];
+
+export const KNOWN_FILE_EXTS = new Set([
+	'.env',
+	'.json',
+	'.yml',
+	'.yaml',
+	'.env.example',
+]);
