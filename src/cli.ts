@@ -1,16 +1,12 @@
 #!/usr/bin/env node
 
-import { resolve } from 'node:path';
+import { basename, resolve } from 'node:path';
 import chalk from 'chalk';
 import type { FSWatcher } from 'chokidar';
 import chokidar from 'chokidar';
 import ora from 'ora';
 import { DEFAULT_IGNORE } from './utils/constants';
-import {
-	acquireFormat,
-	doesEnvExampleFileExists,
-	makeExampleFilenameHandler,
-} from './utils/helpers';
+import { inferOutputTarget } from './utils/helpers';
 import { initialProgram } from './utils/program';
 import { renderFile, writeFile } from './utils/render';
 import { scanProject } from './utils/scan';
@@ -22,7 +18,7 @@ async function main() {
 
 	const options = program.opts();
 	const directoryToScan: string = resolve(options.dir);
-	const filename: string = options?.out;
+	const targetOutput: string = options?.out;
 	const requestToMerge: boolean = options.merge;
 	const watchMode: boolean = options.watch;
 	const ignorePatterns = Array.isArray(options.ignore)
@@ -32,28 +28,36 @@ async function main() {
 	const fullFilename = makeExampleFilenameHandler[targetFormat](filename);
 	const path = resolve(fullFilename);
 
+	const {
+		finalPath,
+		format: targetFormat,
+		type: outputType,
+		exists: outputFileExists,
+	} = inferOutputTarget(targetOutput, options?.format);
+	// acquireFormatFromInput(options?.format)
+
+	if (outputType === 'stdout') {
+		throw new Error('invalid target path to generate output file');
+	}
+
+	// const fullFilename = makeExampleFilenameHandler[targetFormat](filename);
+	// console.log("fullFilename: ", fullFilename);
+	// const path = resolve(fullFilename);
+
 	if (requestToMerge) {
 		console.log(
 			chalk.yellowBright(
-				`requested to merge with existing ${fullFilename} file...`,
+				`requested to merge with existing ${finalPath} file...`,
 			),
 		);
 	}
 
-	const envExampleFileExists = doesEnvExampleFileExists(path);
+	// const envExampleFileExists = doesEnvExampleFileExists(path);
 
-	if (envExampleFileExists.result) {
-		console.log(
-			chalk.gray(
-				`${fullFilename} file detected at ${envExampleFileExists.at}!`,
-			),
-		);
+	if (outputFileExists) {
+		console.log(chalk.gray(`${finalPath} file detected!`));
 	} else {
-		console.log(
-			chalk.gray(
-				`${fullFilename} file not found at ${envExampleFileExists.at}!`,
-			),
-		);
+		console.log(chalk.gray(`${finalPath} file not found!`));
 	}
 
 	const spinner = ora('Scanning project for env usage...').start();
@@ -72,13 +76,15 @@ async function main() {
 					} env keys`,
 				)
 				.stop();
-			const content = renderFile(envMap, targetFormat);
-			await writeFile(path, content, requestToMerge);
-			if (envExampleFileExists.result && requestToMerge) {
+			const content = renderFile(envMap, targetFormat as Format);
+			await writeFile(finalPath as string, content, requestToMerge);
+			if (outputFileExists && requestToMerge) {
 				// * control how much change we have
-				console.log(chalk.green(`${fullFilename} updated`));
+				console.log(
+					chalk.green(`${basename(finalPath as string)} updated`),
+				);
 			} else {
-				console.log(chalk.green(`${fullFilename} written to ${path}`));
+				console.log(chalk.green(`written to ${finalPath as string}`));
 			}
 		} catch (error) {
 			spinner.fail('Scan failed');

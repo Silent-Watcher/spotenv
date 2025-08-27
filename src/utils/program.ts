@@ -55,12 +55,13 @@ export function initialProgram(): Command {
 		.option(
 			'-f, --format <extension>',
 			'output format for environment variables (env, json, yml)',
-			'env',
+			config?.format,
 		)
 		.parse(process.argv);
 
 	// Merge cli options with config file
 	const cliOptions = program.opts();
+	console.log('cliOptions: ', cliOptions);
 	const finalConfig = mergeConfigWithCliOptions(config, cliOptions);
 
 	// update program options with finalConfig

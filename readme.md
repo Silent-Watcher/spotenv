@@ -62,6 +62,7 @@ In action, your configuration file should look like this:
   "out": ".env.example",
   "watch": false,
   "merge": false,
+  "format": "json",
   "ignore": [
     "**/node_modules/**",
     "**/dist/**",
