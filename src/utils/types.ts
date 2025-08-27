@@ -9,3 +9,5 @@ export interface SpotenvConfig {
 	ignore?: string[];
 	format?: Format;
 }
+
+export type Format = 'json' | 'env' | 'yml';
