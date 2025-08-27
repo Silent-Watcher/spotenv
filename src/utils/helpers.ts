@@ -1,13 +1,11 @@
 import { existsSync, type PathLike, statSync } from 'node:fs';
 import type { FileHandle } from 'node:fs/promises';
 import { mkdir, writeFile } from 'node:fs/promises';
-
 import { basename, dirname, extname, join, normalize, sep } from 'node:path';
 import type { ParseResult } from '@babel/parser';
 import { parse } from '@babel/parser';
 import * as t from '@babel/types';
 import { KNOWN_FILE_EXTS } from './constants';
-
 import type { Format } from './types';
 
 export function parseFileToAst(sourceCode: string): ParseResult {
@@ -64,7 +62,6 @@ export async function outputFile(file: PathLike | FileHandle, data: string) {
 	await mkdir(dirname(String(file)), { recursive: true });
 	await writeFile(file, data, { encoding: 'utf-8' });
 }
-
 
 // export function doesEnvExampleFileExists(targetAddr: string): {
 // 	result: boolean;
@@ -245,7 +242,6 @@ export function inferOutputTarget(
 			exists: existsSync(finalPath),
 		};
 	}
-
 
 	// 4) ambiguous: default to directory
 	const finalPath = join(

@@ -24,9 +24,6 @@ async function main() {
 	const ignorePatterns = Array.isArray(options.ignore)
 		? options.ignore
 		: DEFAULT_IGNORE;
-	const targetFormat: Format = acquireFormat(options?.format);
-	const fullFilename = makeExampleFilenameHandler[targetFormat](filename);
-	const path = resolve(fullFilename);
 
 	const {
 		finalPath,
