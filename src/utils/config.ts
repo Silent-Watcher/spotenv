@@ -12,6 +12,7 @@ const defaultConfig: SpotenvConfig = {
 	merge: false,
 	ignore: DEFAULT_IGNORE,
 	format: 'env',
+	types: false,
 };
 
 // function to find the nearest project root by looking for package.json
