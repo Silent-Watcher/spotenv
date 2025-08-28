@@ -55,16 +55,16 @@ async function main() {
 	async function runScanAndWrite() {
 		try {
 			const envMap = await scanProject(directoryToScan, ignorePatterns);
+			const foundedVariablesCount = Array.from(envMap.keys()).filter(
+				(k) => k !== '<DYNAMIC_KEY>',
+			).length;
 			spinner.clear();
-			spinner
-				.succeed(
-					`Found ${
-						Array.from(envMap.keys()).filter(
-							(k) => k !== '<DYNAMIC_KEY>',
-						).length
-					} env keys`,
-				)
-				.stop();
+			spinner.succeed(`Found ${foundedVariablesCount} env keys`).stop();
+
+			if (!outputFileExists && foundedVariablesCount === 0) {
+				return;
+			}
+
 			if (options.types) {
 				writeDeifinitionFile(envMap);
 				console.log(
