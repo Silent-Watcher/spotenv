@@ -129,6 +129,9 @@ spotenv -d . -f yml -o environment
 # Watch and auto-regenerate (COMMING SOON!)
 spotenv -w
 
+# ➕ Generate TypeScript types (env.d.ts)
+spotenv -d . -t
+
 ```
 
 ### CLI options
@@ -139,6 +142,7 @@ spotenv -w
 * `-m, --merge` — merge results with an existing `.env.sample-filename` (keep existing keys)
 * `--ignore <patterns...>` — additional glob ignore patterns
 * `-f, --format <extension>` — output format for environment variables (env, json, yml) (default: `env`)
+* `-t, --types` — generate TypeScript definition file (env.d.ts)
 Examples:
 
 ```bash
@@ -153,6 +157,9 @@ spotenv -d ./my-app -f yml -o config
 
 # watch updates into existing example (COMMING SOON!)
 spotenv -w
+
+# Generate TypeScript types (env.d.ts)
+spotenv -d ./my-app -t
 ```
 
 ---

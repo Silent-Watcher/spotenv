@@ -170,3 +170,15 @@ export async function writeFile(
 		outputFile(resolve(outPath), content);
 	}
 }
+
+export function writeDeifinitionFile(envKeyMap: EnvKeyMap) {
+	const typeDefinition =
+		`declare namespace NodeJS {\n` +
+		`  interface ProcessEnv {\n` +
+		Array.from(envKeyMap.keys())
+			.map((k) => `    ${k}: string;`)
+			.join('\n') +
+		`\n  }\n}`;
+
+	outputFile(resolve('env.d.ts'), typeDefinition);
+}

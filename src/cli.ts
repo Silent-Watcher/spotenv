@@ -8,7 +8,7 @@ import ora from 'ora';
 import { DEFAULT_IGNORE } from './utils/constants';
 import { inferOutputTarget } from './utils/helpers';
 import { initialProgram } from './utils/program';
-import { renderFile, writeFile } from './utils/render';
+import { renderFile, writeDeifinitionFile, writeFile } from './utils/render';
 import { scanProject } from './utils/scan';
 import type { Format } from './utils/types';
 
@@ -65,6 +65,13 @@ async function main() {
 					} env keys`,
 				)
 				.stop();
+			if (options.types) {
+				writeDeifinitionFile(envMap);
+				console.log(
+					chalk.green(`Type definition has generated env.d.ts`),
+				);
+			}
+
 			const content = renderFile(envMap, targetFormat as Format);
 			await writeFile(finalPath as string, content, requestToMerge);
 			if (outputFileExists && requestToMerge) {

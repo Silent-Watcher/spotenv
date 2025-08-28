@@ -14,6 +14,8 @@ export function initialProgram(): Command {
 		watch: false,
 		merge: false,
 		ignore: DEFAULT_IGNORE,
+		format: 'env',
+		types: false,
 	};
 
 	if (path) {
@@ -56,6 +58,11 @@ export function initialProgram(): Command {
 			'-f, --format <extension>',
 			'output format for environment variables (env, json, yml)',
 			config?.format,
+		)
+		.option(
+			'-t, --types',
+			'generate TypeScript definition file (env.d.ts) from .env.example',
+			config?.types,
 		)
 		.parse(process.argv);
 

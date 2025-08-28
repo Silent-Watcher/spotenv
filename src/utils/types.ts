@@ -8,4 +8,5 @@ export interface SpotenvConfig {
 	merge?: boolean;
 	ignore?: string[];
 	format?: Format;
+	types?: boolean;
 }
