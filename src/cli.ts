@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import { basename, resolve } from 'node:path';
-import chalk from 'chalk';
+import { styleText } from 'node:util';
 import type { FSWatcher } from 'chokidar';
 import chokidar from 'chokidar';
 import ora from 'ora';
@@ -38,16 +38,17 @@ async function main() {
 
 	if (requestToMerge) {
 		console.log(
-			chalk.yellowBright(
+			styleText(
+				'yellow',
 				`requested to merge with existing ${finalPath} file...`,
 			),
 		);
 	}
 
 	if (outputFileExists) {
-		console.log(chalk.gray(`${finalPath} file detected!`));
+		console.log(styleText('grey', `${finalPath} file detected!`));
 	} else {
-		console.log(chalk.gray(`${finalPath} file not found!`));
+		console.log(styleText('grey', `${finalPath} file not found!`));
 	}
 
 	const spinner = ora('Scanning project for env usage...').start();
@@ -68,7 +69,10 @@ async function main() {
 			if (options.types) {
 				writeDeifinitionFile(envMap);
 				console.log(
-					chalk.green(`Type definition has generated env.d.ts`),
+					styleText(
+						'green',
+						`Type definition has generated env.d.ts`,
+					),
 				);
 			}
 
@@ -76,10 +80,15 @@ async function main() {
 			await writeFile(finalPath as string, content, requestToMerge);
 			if (outputFileExists && requestToMerge) {
 				console.log(
-					chalk.green(`${basename(finalPath as string)} updated`),
+					styleText(
+						'green',
+						`${basename(finalPath as string)} updated`,
+					),
 				);
 			} else {
-				console.log(chalk.green(`written to ${finalPath as string}`));
+				console.log(
+					styleText('green', `written to ${finalPath as string}`),
+				);
 			}
 		} catch (error) {
 			spinner.fail('Scan failed');
@@ -89,7 +98,7 @@ async function main() {
 
 	if (watchMode) {
 		spinner.clear();
-		console.log(chalk.blue('\nWatching for file changes...'));
+		console.log(styleText('blue', '\nWatching for file changes...'));
 		watcher = chokidar.watch('.', {
 			ignored: [
 				...ignorePatterns,
