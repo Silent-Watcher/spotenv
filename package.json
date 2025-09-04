@@ -5,6 +5,10 @@
 	"bin": {
 		"spotenv": "dist/cli.js"
 	},
+	"engines": {
+		"node": ">=22.18.0"
+	},
+	"engineStrict": true,
 	"keywords": [
 		"cli",
 		"env-parser",
